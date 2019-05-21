@@ -1,5 +1,6 @@
-package com.kiseru.fix.fixtask.services;
+package com.kiseru.fix.fixtask.services.impl;
 
+import com.kiseru.fix.fixtask.services.HorseService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +14,7 @@ import java.util.Map;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class HorseServiceTest {
+public class HorseServiceImplTest {
 
     @Autowired
     private HorseService horseService;
