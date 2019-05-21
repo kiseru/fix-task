@@ -36,6 +36,10 @@ public class HorseService {
     }
 
     private int convertLettersToInt(String letters) {
+        if (!LETTERS_PATTERN.matcher(letters).matches()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
         var result = 0;
         for (int i = 0; i < letters.length(); i++) {
             var c = letters.charAt(i);

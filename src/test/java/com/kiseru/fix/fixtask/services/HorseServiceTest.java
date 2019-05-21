@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -41,10 +40,22 @@ public class HorseServiceTest {
     }
 
     @Test
-    public void testConvertLettersToInt() {
-        var input = new String[] { "A", "BBD", "QWERTY" };
-        var result = new int[] { 0, 705, 200, 227, 194 };
+    public void testConvertLettersToInt() throws NoSuchMethodException {
+        var input = new String[] { "A", "BBD", "QWERTY", "1234", "ФЫАВ", "adfD" };
+        var expected = new int[] { 0, 705, 200237802, -1, -1, -1 };
 
+        var convertLettersToInt = horseService.getClass().getDeclaredMethod("convertLettersToInt", String.class);
+        convertLettersToInt.setAccessible(true);
+        var result = Arrays.stream(input)
+                .mapToInt(letters -> {
+                    try {
+                        return (int) convertLettersToInt.invoke(horseService, letters);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        return -1;
+                    }
+                })
+                .toArray();
 
+        Assert.assertArrayEquals(expected, result);
     }
 }
