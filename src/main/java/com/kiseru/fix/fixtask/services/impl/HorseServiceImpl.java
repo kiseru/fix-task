@@ -23,6 +23,10 @@ public class HorseServiceImpl implements HorseService {
     }
 
     private int getMovesCount(int fieldHeight, int fieldWidth, Map.Entry<Integer, Integer> startPosition, Map.Entry<Integer, Integer> endPosition) {
+        if (!isPossiblePosition(fieldHeight, fieldWidth, startPosition) || !isPossiblePosition(fieldHeight, fieldWidth, endPosition)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Position must be in the field");
+        }
+
         var field = new int[fieldWidth][fieldHeight];
         for (var row : field) {
             Arrays.fill(row, -1);
@@ -53,7 +57,8 @@ public class HorseServiceImpl implements HorseService {
 
                     var nextCol = col + i;
                     var nextRow = row + j;
-                    if (nextCol >= fieldWidth || nextCol < 0 || nextRow >= fieldHeight || nextRow < 0) {
+
+                    if (!isPossiblePosition(fieldHeight, fieldWidth, nextCol, nextRow)) {
                         continue;
                     }
 
@@ -70,7 +75,7 @@ public class HorseServiceImpl implements HorseService {
 
     private Map.Entry<Integer, Integer> convertPosition(String position) {
         if (!POSITION_PATTERN.matcher(position).matches()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Parameters");
         }
 
         var letterMatcher = LETTERS_PATTERN.matcher(position);
@@ -86,7 +91,7 @@ public class HorseServiceImpl implements HorseService {
 
     private int convertLettersToInt(String letters) {
         if (!LETTERS_PATTERN.matcher(letters).matches()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Parameters");
         }
 
         var result = 0;
@@ -97,5 +102,13 @@ public class HorseServiceImpl implements HorseService {
         }
 
         return result;
+    }
+
+    private boolean isPossiblePosition(int fieldHeight, int fieldWidth, Map.Entry<Integer, Integer> position) {
+        return isPossiblePosition(fieldHeight, fieldWidth, position.getKey(), position.getValue());
+    }
+
+    private boolean isPossiblePosition(int fieldHeight, int fieldWidth, int col, int row) {
+        return col < fieldWidth && col >= 0 && row < fieldHeight & row >= 0;
     }
 }
