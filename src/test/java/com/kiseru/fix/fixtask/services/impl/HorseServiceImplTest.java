@@ -20,9 +20,18 @@ public class HorseServiceImplTest {
     private HorseService horseService;
 
     @Test
+    public void testGetMovesCount() {
+        Assert.assertEquals(1, horseService.getMovesCount(10, 14, "B1", "A3"));
+        Assert.assertEquals(6, horseService.getMovesCount(10, 14, "A1", "H8"));
+        Assert.assertEquals(4, horseService.getMovesCount(10, 14, "A1", "B2"));
+        Assert.assertEquals(0, horseService.getMovesCount(10, 14, "A1", "A1"));
+        Assert.assertEquals(-1, horseService.getMovesCount(3, 3, "A1", "B2"));
+    }
+
+    @Test
     public void testConvertPosition() throws NoSuchMethodException {
-        var positions = new String[] { "A3", "B1", "11" };
-        var result = new Map.Entry[] { Map.entry(0, 2), Map.entry(1, 0), null };
+        var positions = new String[]{"A3", "B1", "11"};
+        var result = new Map.Entry[]{Map.entry(0, 2), Map.entry(1, 0), null};
 
         var convertPosition = horseService.getClass().getDeclaredMethod("convertPosition", String.class);
         convertPosition.setAccessible(true);
@@ -42,8 +51,8 @@ public class HorseServiceImplTest {
 
     @Test
     public void testConvertLettersToInt() throws NoSuchMethodException {
-        var input = new String[] { "A", "BBD", "QWERTY", "1234", "ФЫАВ", "adfD" };
-        var expected = new int[] { 0, 705, 200237802, -1, -1, -1 };
+        var input = new String[]{"A", "BBD", "QWERTY", "1234", "ФЫАВ", "adfD"};
+        var expected = new int[]{0, 705, 200237802, -1, -1, -1};
 
         var convertLettersToInt = horseService.getClass().getDeclaredMethod("convertLettersToInt", String.class);
         convertLettersToInt.setAccessible(true);

@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -17,7 +19,53 @@ public class HorseServiceImpl implements HorseService {
     private static final Pattern POSITION_PATTERN = Pattern.compile("^[A-Z]+[0-9]+$");
 
     public int getMovesCount(int fieldHeight, int fieldWidth, String startPosition, String endPosition) {
-        return 0;
+        return getMovesCount(fieldHeight, fieldWidth, convertPosition(startPosition), convertPosition(endPosition));
+    }
+
+    private int getMovesCount(int fieldHeight, int fieldWidth, Map.Entry<Integer, Integer> startPosition, Map.Entry<Integer, Integer> endPosition) {
+        var field = new int[fieldWidth][fieldHeight];
+        for (var row : field) {
+            Arrays.fill(row, -1);
+        }
+
+        var queue = new LinkedList<Map.Entry<Integer, Integer>>();
+        queue.addLast(startPosition);
+        field[startPosition.getKey()][startPosition.getValue()] = 0;
+
+        while (!queue.isEmpty()) {
+            var position = queue.removeFirst();
+            if (position.equals(endPosition)) {
+                break;
+            }
+
+            var col = position.getKey();
+            var row = position.getValue();
+
+            for (int i = -2; i <= 2; i++) {
+                if (i == 0) {
+                    continue;
+                }
+
+                for (int j = -2; j <= 2; j++) {
+                    if (j == 0 || Math.abs(j) == Math.abs(i)) {
+                        continue;
+                    }
+
+                    var nextCol = col + i;
+                    var nextRow = row + j;
+                    if (nextCol >= fieldWidth || nextCol < 0 || nextRow >= fieldHeight || nextRow < 0) {
+                        continue;
+                    }
+
+                    if (field[nextCol][nextRow] == -1) {
+                        field[nextCol][nextRow] = field[col][row] + 1;
+                        queue.addLast(Map.entry(nextCol, nextRow));
+                    }
+                }
+            }
+        }
+
+        return field[endPosition.getKey()][endPosition.getValue()];
     }
 
     private Map.Entry<Integer, Integer> convertPosition(String position) {
