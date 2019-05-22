@@ -17,12 +17,13 @@ import static org.junit.Assert.assertEquals;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class CountServletTest {
 
+    private static final String URI_TEMPLATE = "%s?width=%d&height=%d&start=%s&end=%s";
     @Autowired
     private TestRestTemplate restTemplate;
 
     @Test
     public void testGetMoves() {
-        var uri = String.format("%s?width=%d&height=%d&start=%s&end=%s", CountServlet.URI, 14, 10, "A3", "B1");
+        var uri = String.format(URI_TEMPLATE, CountServlet.URI, 14, 10, "A3", "B1");
         var responseEntity = restTemplate.getForEntity(URI.create(uri), String.class);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     }
@@ -51,6 +52,20 @@ public class CountServletTest {
         var uriWithWrongParameter = String.format("%s?width=%s&height=%d&start=%s&end=%s", CountServlet.URI, "A", 10,
                 "A3", "B1");
         var responseEntity = restTemplate.getForEntity(URI.create(uriWithWrongParameter), String.class);
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+    }
+
+    @Test
+    public void testGetMovesWithInvalidStartPosition() {
+        var uriWithInvalidStartPosition = String.format(URI_TEMPLATE, CountServlet.URI, 3, 3, "A4", "B1");
+        var responseEntity = restTemplate.getForEntity(URI.create(uriWithInvalidStartPosition), String.class);
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+    }
+
+    @Test
+    public void testGetMovesWithInvalidEndPosition() {
+        var uriWithInvalidEndPosition = String.format(URI_TEMPLATE, CountServlet.URI, 3, 3, "A1", "B4");
+        var responseEntity = restTemplate.getForEntity(URI.create(uriWithInvalidEndPosition), String.class);
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
     }
 }
